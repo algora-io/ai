@@ -3,14 +3,14 @@ defmodule Algora.Github.Archive do
 
   @headers [{"authorization", "Basic #{System.get_env("GH_API_TOKEN")}"}]
 
-  def fetch(paths) do
+  def list_issues(paths) do
     body = build_query(paths)
     request = Finch.build(:post, @gh_api_url, @headers, body)
 
     with {:ok, response} <- Finch.request(request, Algora.Finch),
          {:ok, body} <- Jason.decode(response.body),
          {:ok, data} <- parse_response(body) do
-      data
+      {:ok, data}
     end
   end
 
