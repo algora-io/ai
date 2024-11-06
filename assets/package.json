@@ -1,0 +1,18 @@
+{
+  "name": "@algora/ai",
+  "version": "0.0.1",
+  "description": "Algora is a developer tool & community simplifying bounties, hiring & open source sustainability.",
+  "main": "app.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Algora PBC",
+  "private": true,
+  "devDependencies": {
+    "@types/phoenix": "^1.6.4",
+    "@types/phoenix_live_view": "^0.18.4",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "dependencies": {}
+}

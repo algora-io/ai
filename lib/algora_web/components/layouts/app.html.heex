@@ -8,12 +8,25 @@
         v<%= Application.spec(:phoenix, :vsn) %>
       </p>
     </div>
-    <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <a href="https://twitter.com/elixirphoenix" class="hover:text-zinc-700">
-        @elixirphoenix
-      </a>
-      <a href="https://github.com/phoenixframework/phoenix" class="hover:text-zinc-700">
-        GitHub
+    <div class="flex items-center gap-4 text-sm font-medium">
+      <button
+        id="theme-switch"
+        type="button"
+        phx-hook="ThemeSwitch"
+        aria-label="Toggle theme"
+        class="rounded-md p-2 text-foreground/80 hover:bg-accent hover:text-foreground"
+      >
+        <.icon name="tabler-sun" class="h-5 w-5 [.dark_&]:hidden" />
+        <.icon name="tabler-moon" class="hidden h-5 w-5 [.dark_&]:block" />
+      </button>
+      <a
+        href="https://twitter.com/algoraio"
+        class="text-foreground/80 transition-colors hover:text-foreground"
+      >
+        <div class="flex items-center gap-2">
+          <.icon name="tabler-brand-twitter" class="h-4 w-4" />
+          <span>@algoraio</span>
+        </div>
       </a>
       <a
         href="https://hexdocs.pm/phoenix/overview.html"

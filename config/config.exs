@@ -8,6 +8,9 @@
 import Config
 
 config :algora,
+  title: "Algora",
+  description:
+    "Algora is a developer tool & community simplifying bounties, hiring & open source sustainability.",
   ecto_repos: [Algora.Repo],
   generators: [timestamp_type: :utc_datetime]
 
@@ -36,7 +39,7 @@ config :esbuild,
   version: "0.17.11",
   algora: [
     args:
-      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+      ~w(js/app.ts --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
@@ -60,6 +63,36 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+config :nanoid,
+  size: 16,
+  alphabet: "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+config :ex_money,
+  default_cldr_backend: Algora.Cldr
+
+config :ex_cldr,
+  default_locale: "en",
+  default_backend: Algora.Cldr
+
+# SaladUI use tails to properly merge Tailwind CSS classes
+config :tails,
+  color_classes: [
+    "primary",
+    "secondary",
+    "destructive",
+    "success",
+    "muted",
+    "accent",
+    "popover",
+    "card",
+    "border",
+    "input",
+    "ring",
+    "background",
+    "foreground",
+    "gray"
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

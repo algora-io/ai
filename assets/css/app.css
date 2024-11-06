@@ -1,5 +1,235 @@
+/* This file is for your main application CSS */
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-/* This file is for your main application CSS */
+.font-display {
+  font-family: "Space Grotesk", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.font-mono {
+  font-family: "Inconsolata", monospace;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 0.25em;
+  height: 0.25em;
+}
+
+/* animations */
+.fade-in-scale {
+  animation: 0.2s ease-in 0s normal forwards 1 fade-in-scale-keys;
+}
+
+.fade-out-scale {
+  animation: 0.2s ease-out 0s normal forwards 1 fade-out-scale-keys;
+}
+
+.fade-in {
+  animation: 0.2s ease-out 0s normal forwards 1 fade-in-keys;
+}
+.fade-out {
+  animation: 0.2s ease-out 0s normal forwards 1 fade-out-keys;
+}
+
+@keyframes fade-in-scale-keys {
+  0% {
+    scale: 0.95;
+    opacity: 0;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out-scale-keys {
+  0% {
+    scale: 1;
+    opacity: 1;
+  }
+  100% {
+    scale: 0.95;
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in-keys {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out-keys {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-right-keys {
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+/* Alerts and form errors used by phx.new */
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+.alert-info {
+  @apply text-indigo-300 bg-indigo-950/50 border-indigo-500;
+}
+.alert-warning {
+  @apply text-yellow-300 bg-yellow-950/50 border-yellow-500;
+}
+.alert-danger {
+  @apply text-red-300 bg-red-950/50 border-red-500;
+}
+.alert p {
+  margin-bottom: 0;
+}
+.alert:empty {
+  display: none;
+}
+.invalid-feedback {
+  display: inline-block;
+}
+
+/* LiveView specific classes for your customization */
+.phx-no-feedback.invalid-feedback,
+.phx-no-feedback .invalid-feedback {
+  display: none;
+}
+
+.phx-click-loading {
+  opacity: 0.5;
+  transition: opacity 1s ease-out;
+}
+
+.phx-loading {
+  cursor: wait;
+}
+
+.phx-modal {
+  opacity: 1 !important;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(255, 255, 255);
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.phx-modal-content {
+  background-color: #000;
+  margin: 15vh auto;
+  padding: 20px;
+  border: 1px solid #94a3b8;
+  width: 80%;
+}
+
+.phx-modal-close {
+  color: #64748b;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.phx-modal-close:hover,
+.phx-modal-close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+body {
+  @apply bg-background text-foreground;
+}
+
+::selection {
+  @apply bg-primary text-primary-foreground;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px hsl(var(--background)) inset !important;
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+}
+
+@layer base {
+  :root {
+    --background: 255 0% 95%;
+    --foreground: 255 0% 0%;
+    --card: 255 0% 90%;
+    --card-foreground: 255 0% 10%;
+    --popover: 255 0% 95%;
+    --popover-foreground: 255 95% 0%;
+    --primary: 161 93.5% 30.4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 255 10% 70%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 217 10% 85%;
+    --muted-foreground: 255 0% 35%;
+    --accent: 217 10% 80%;
+    --accent-foreground: 255 0% 10%;
+    --destructive: 0 50% 30%;
+    --destructive-foreground: 255 0% 90%;
+    --success: 161 93.5% 30.4%;
+    --success-foreground: 0 0% 100%;
+    --border: 255 20% 50%;
+    --input: 255 20% 18%;
+    --ring: 161 93.5% 30.4%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 255 0% 0%;
+    --foreground: 255 0% 90%;
+    --card: 255 10% 5%;
+    --card-foreground: 255 0% 90%;
+    --popover: 255 10% 5%;
+    --popover-foreground: 255 0% 90%;
+    --primary: 161 93.5% 30.4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 255 10% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 217 10% 15%;
+    --muted-foreground: 255 0% 60%;
+    --accent: 217 10% 15%;
+    --accent-foreground: 255 0% 90%;
+    --destructive: 0 50% 30%;
+    --destructive-foreground: 255 0% 90%;
+    --success: 158 64% 52%;
+    --success-foreground: 0 0% 100%;
+    --border: 255 20% 18%;
+    --input: 255 20% 18%;
+    --ring: 161 93.5% 30.4%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+}
+
+body {
+  @apply bg-background text-foreground;
+}
