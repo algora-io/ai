@@ -1,4 +1,4 @@
-defmodule AlgoraWeb.BountyLive do
+defmodule AlgoraWeb.HomeLive do
   use AlgoraWeb, :live_view
 
   def mount(_params, _session, socket) do

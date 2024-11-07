@@ -17,7 +17,7 @@ defmodule AlgoraWeb.Router do
   scope "/", AlgoraWeb do
     pipe_through :browser
 
-    live "/", BountyLive
+    live "/", HomeLive
   end
 
   # Other scopes may use custom stacks.
