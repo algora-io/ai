@@ -1,12 +1,9 @@
 <header class="px-4 sm:px-6 lg:px-8">
-  <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
+  <div class="flex items-center justify-between border-b border-input py-3">
     <div class="flex items-center gap-4">
       <a href="/">
-        <img src={~p"/images/logo.svg"} width="36" />
+        <.wordmark class="h-8 w-auto" />
       </a>
-      <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
-        v<%= Application.spec(:phoenix, :vsn) %>
-      </p>
     </div>
     <div class="flex items-center gap-4 text-sm font-medium">
       <button
@@ -29,17 +26,18 @@
         </div>
       </a>
       <a
-        href="https://hexdocs.pm/phoenix/overview.html"
-        class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
+        href="https://github.com/algora-io"
+        class="text-foreground/80 transition-colors hover:text-foreground"
       >
-        Get Started <span aria-hidden="true">&rarr;</span>
+        <div class="flex items-center gap-2">
+          <.icon name="tabler-brand-github" class="h-4 w-4" />
+          <span>GitHub</span>
+        </div>
       </a>
     </div>
   </div>
 </header>
 <main class="px-4 py-20 sm:px-6 lg:px-8">
-  <div class="mx-auto max-w-2xl">
-    <.flash_group flash={@flash} />
-    <%= @inner_content %>
-  </div>
+  <.flash_group flash={@flash} />
+  <%= @inner_content %>
 </main>
