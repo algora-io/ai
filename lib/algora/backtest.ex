@@ -1,6 +1,6 @@
 defmodule Algora.Backtest do
   require Logger
-  alias Algora.{AI, Repo, Workspace, Money}
+  alias Algora.{AI, Workspace, Money}
 
   @doc """
   Run a backtest of the bounty recommendation system on random issues.
@@ -12,64 +12,38 @@ defmodule Algora.Backtest do
       Algora.Backtest.bounty_recommendations(limit: 10)
       Algora.Backtest.bounty_recommendations(seed: 42, limit: 5)
   """
-  def bounty_recommendations(opts \\ []) do
-    limit = opts[:limit] || 2
-
-    {:ok, {:ok, %{rows: issues}}} =
-      Repo.transaction(fn ->
-        if seed = opts[:seed] do
-          :rand.seed(:exsplus, {seed, seed, seed})
-          seed = :rand.uniform()
-          Repo.query!("SELECT setseed($1)", [seed])
-        end
-
-        Repo.query(
-          """
-          SELECT path, title, body, bounty
-          FROM issues
-          WHERE bounty IS NOT NULL
-          ORDER BY RANDOM()
-          LIMIT $1
-          """,
-          [limit]
-        )
-      end)
+  def bounty_recommendations(_opts \\ []) do
+    {:ok, issues} = Workspace.get_training_sample()
 
     results =
       issues
-      |> Enum.map(fn [path, title, body, actual_bounty] ->
-        issue = %{
-          path: path,
-          title: title,
-          body: body,
-          bounty: actual_bounty
-        }
-
+      |> Enum.map(fn issue ->
         similar_issues =
-          Workspace.search_issues("##{issue.title}\n\n#{issue.body}")
+          Workspace.search_issues(
+            "##{issue.title}\n\n#{issue.body}\n\nComments: #{Jason.encode!(issue.comments)}"
+          )
           |> Enum.reject(&(&1.path == issue.path))
 
         result =
-          case AI.get_bounty_recommendation(issue, similar_issues) do
+          case AI.get_bounty_recommendation(issue, issue.comments, similar_issues) do
             {:ok, recommended_bounty} ->
               %{
-                path: path,
-                actual: Decimal.new(actual_bounty),
+                path: issue.path,
+                actual: Decimal.new(issue.bounty),
                 recommended: recommended_bounty,
                 squared_error:
                   Decimal.mult(
-                    Decimal.sub(recommended_bounty, Decimal.new(actual_bounty)),
-                    Decimal.sub(recommended_bounty, Decimal.new(actual_bounty))
+                    Decimal.sub(recommended_bounty, Decimal.new(issue.bounty)),
+                    Decimal.sub(recommended_bounty, Decimal.new(issue.bounty))
                   ),
                 absolute_error:
-                  Decimal.abs(Decimal.sub(recommended_bounty, Decimal.new(actual_bounty)))
+                  Decimal.abs(Decimal.sub(recommended_bounty, Decimal.new(issue.bounty)))
               }
 
             _ ->
               nil
           end
 
-        # Print result immediately if valid
         if result do
           IO.puts("\n#{result.path}")
           IO.puts("  #{Money.format!(result.actual, "USD")} [actual]")

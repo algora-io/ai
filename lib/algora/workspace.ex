@@ -43,4 +43,57 @@ defmodule Algora.Workspace do
       )
     )
   end
+
+  def get_training_sample() do
+    issue_paths = [
+      "zio/zio-schema#544",
+      "dittofeed/dittofeed#578",
+      "zio/zio-http#2908",
+      "udecode/plate#560",
+      "zio/zio-schema#547",
+      "udecode/plate#2420",
+      "zio/zio-schema#388",
+      "teamhanko/hanko#935",
+      "tailcallhq/tailcall#2343",
+      "zio/zio-schema#608"
+    ]
+
+    {:ok, Repo.all(from(i in Issue, where: i.path in ^issue_paths))}
+  end
+
+  def get_random_issues(opts \\ []) do
+    limit = opts[:limit] || 2
+
+    result =
+      Repo.transaction(fn ->
+        if seed = opts[:seed] do
+          :rand.seed(:exsplus, {seed, seed, seed})
+          seed = :rand.uniform()
+          Repo.query!("SELECT setseed($1)", [seed])
+        end
+
+        Repo.all(
+          from(i in Issue,
+            where:
+              fragment(
+                """
+                  id IN (
+                    SELECT issues.id
+                    FROM issues
+                    WHERE bounty IS NOT NULL
+                    ORDER BY RANDOM()
+                    LIMIT ?
+                  )
+                """,
+                ^limit
+              )
+          )
+        )
+      end)
+
+    case result do
+      {:ok, issues} -> {:ok, issues}
+      {:error, reason} -> {:error, reason}
+    end
+  end
 end

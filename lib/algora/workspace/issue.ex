@@ -34,6 +34,7 @@ defmodule Algora.Workspace.Issue.Comment do
   use Ecto.Schema
 
   @primary_key false
+  @derive {Jason.Encoder, except: [:created_at]}
   embedded_schema do
     field :body, :string
     field :actor_login, :string
