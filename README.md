@@ -1,18 +1,167 @@
-# Algora
+<!-- PROJECT LOGO -->
+<p align="center">
+  <a href="https://github.com/algora-io/ai">
+   <img src="https://user-images.githubusercontent.com/17045339/231901505-2936b331-3716-4418-9386-4a5d9cb694ba.svg" alt="Logo">
+  </a>
 
-To start your Phoenix server:
+  <h3 align="center">Algora Console</h3>
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+  <p align="center">
+    Algora is a developer tool & community simplifying bounties, hiring & open source sustainability.
+    <br/>
+    <a href="https://ai.algora.io">Website</a>
+    ·
+    <a href="https://algora.io/discord">Discord</a>
+    ·
+    <a href="https://twitter.com/algoraio">Twitter</a>
+    ·
+    <a href="https://www.youtube.com/@algora-io">YouTube</a>
+    ·
+    <a href="https://github.com/algora-io/ai/issues">Issues</a>
+  </p>
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+  <p align="center">
+    <a href="https://console.algora.io/org/algora/bounties?status=open">
+      <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fconsole.algora.io%2Fapi%2Fshields%2Falgora%2Fbounties%3Fstatus%3Dopen" alt="Open Bounties">
+    </a>
+    <a href="https://console.algora.io/org/algora/bounties?status=completed">
+      <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fconsole.algora.io%2Fapi%2Fshields%2Falgora%2Fbounties%3Fstatus%3Dcompleted" alt="Rewarded Bounties">
+    </a>
+  </p>
+</p>
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+<!-- GETTING STARTED -->
 
-## Learn more
+## Getting Started
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+To get a local copy up and running, follow these steps.
+
+### Prerequisites
+
+- Elixir and Erlang/OTP
+  - We recommend using [asdf](https://github.com/asdf-vm/asdf) to install [Elixir](https://github.com/asdf-vm/asdf-elixir) and [Erlang/OTP](https://github.com/asdf-vm/asdf-erlang).
+  - Keep in mind that each Elixir version supports [specific Erlang/OTP versions](https://hexdocs.pm/elixir/compatibility-and-deprecations.html#between-elixir-and-erlang-otp).
+  - Make sure you have at least **Elixir 1.12** installed to run Algora Console.
+- PostgreSQL
+
+### Setting up the project
+
+1. Clone the repo and go to the project folder
+
+   ```sh
+   git clone https://github.com/algora-io/ai.git; cd ai
+   ```
+
+2. Fetch dependencies
+
+   ```sh
+   mix deps.get
+   ```
+
+   **Note:** If you're using an Apple machine with an ARM-based chip, you _might_ need to install the Rust compiler and run `mix compile.rambo`
+
+3. Initialize your `.env` file
+
+   ```sh
+   cp .env.example .env
+   ```
+
+4. Create a Postgres database with `pg_vectorize` extension installed
+
+   - **Option 1:** Use [VectorDB Stack](https://tembo.io/docs/product/stacks/ai/vectordb) on [Tembo Cloud](https://cloud.tembo.io)
+   - **Option 2:** Install [pg_vectorize](https://github.com/tembo-io/pg_vectorize) on your own Postgres server
+
+5. Paste your connection string into your `.env` file
+
+   ```env
+   DATABASE_URL="postgresql://user:pass@localhost:5432/db"
+   ```
+
+6. Open a psql shell and set the OpenAI API key
+
+   ```sh
+   psql <DATABASE_URL>
+   ```
+
+   ```sql
+   ALTER SYSTEM SET vectorize.openai_key TO '<your api key>';
+   SELECT pg_reload_conf();
+   ```
+
+7. Run migrations and seed your database
+
+   ```sh
+   env $(cat .env | xargs -L 1) mix ecto.setup
+   ```
+
+8. Start your development server
+
+   ```sh
+   env $(cat .env | xargs -L 1) iex -S mix phx.server
+   ```
+
+## How It Works
+
+Algora uses vector embeddings and LLMs to recommend bounty amounts for GitHub issues.
+
+### Process flow
+
+1. System receives GitHub issue URL → fetches details → finds similar issues
+2. Uses vector search to find 10 semantically similar issues with bounty data
+3. GPT-4o analyzes patterns and generates USD recommendation based on similar issues
+
+### Core components
+
+1. **Embeddings**
+
+Issues are stored in PostgreSQL with their metadata, content and comments. Vector embeddings are automatically created and managed by `pg_vectorize`
+
+```sql
+-- priv/repo/migrations/20241107000612_create_issues.exs
+SELECT vectorize.table(
+   job_name => 'issue_search',
+   "table" => 'issues',
+   primary_key => 'id',
+   columns => ARRAY['title', 'body', 'comments_text'],
+   transformer => 'openai/text-embedding-3-small',
+   schedule => 'realtime',
+   update_col => 'updated_at'
+);
+```
+
+2. **Search**
+
+Vector search is used to find semantically similar issues
+
+```sql
+-- lib/algora/workspace.ex
+SELECT *
+FROM vectorize.search(
+   job_name => 'issue_search',
+   query => ?,
+   return_columns => ARRAY['id'],
+   num_results => 10
+)
+```
+
+3. **Recommendation**
+
+The final recommendation is generated by an LLM
+
+```sql
+-- lib/algora/ai.ex
+SELECT vectorize.generate(
+   input => ?,
+   model => 'openai/gpt-4o'
+)
+```
+
+<!-- ACKNOWLEDGEMENTS -->
+
+## Acknowledgements
+
+Special thanks to these amazing projects which help power Algora AI:
+
+- [Phoenix Framework](https://www.phoenixframework.org/)
+- [Tembo](https://tembo.io/)
+- [Fly.io](https://fly.io/)
