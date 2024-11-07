@@ -191,7 +191,7 @@ input:-webkit-autofill:active {
     --muted-foreground: 255 0% 35%;
     --accent: 217 10% 80%;
     --accent-foreground: 255 0% 10%;
-    --destructive: 0 50% 30%;
+    --destructive: 0 74% 42%;
     --destructive-foreground: 255 0% 90%;
     --success: 161 93.5% 30.4%;
     --success-foreground: 0 0% 100%;
@@ -215,7 +215,7 @@ input:-webkit-autofill:active {
     --muted-foreground: 255 0% 60%;
     --accent: 217 10% 15%;
     --accent-foreground: 255 0% 90%;
-    --destructive: 0 50% 30%;
+    --destructive: 0 91% 71%;
     --destructive-foreground: 255 0% 90%;
     --success: 158 64% 52%;
     --success-foreground: 0 0% 100%;

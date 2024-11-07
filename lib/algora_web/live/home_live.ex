@@ -37,8 +37,8 @@ defmodule AlgoraWeb.HomeLive do
         send(self(), {:fetch_comments, url, issue})
         {:noreply, assign(socket, current_issue: issue, status: "fetching_comments")}
 
-      {:error, reason} ->
-        {:noreply, assign(socket, error: "Failed to fetch issue: #{reason}", status: nil)}
+      {:error, _reason} ->
+        {:noreply, assign(socket, error: "Failed to fetch issue", status: nil)}
     end
   end
 
@@ -54,8 +54,8 @@ defmodule AlgoraWeb.HomeLive do
            status: "searching_similar_issues"
          )}
 
-      {:error, reason} ->
-        {:noreply, assign(socket, error: "Failed to fetch comments: #{reason}", status: nil)}
+      {:error, _reason} ->
+        {:noreply, assign(socket, error: "Failed to fetch comments", status: nil)}
     end
   end
 
@@ -75,9 +75,8 @@ defmodule AlgoraWeb.HomeLive do
       {:ok, amount} ->
         {:noreply, assign(socket, recommendation: amount, status: "complete")}
 
-      {:error, reason} ->
-        {:noreply,
-         assign(socket, error: "Failed to calculate recommendation: #{reason}", status: nil)}
+      {:error, _reason} ->
+        {:noreply, assign(socket, error: "Failed to calculate recommendation", status: nil)}
     end
   end
 
@@ -87,7 +86,7 @@ defmodule AlgoraWeb.HomeLive do
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Left Column: Input and Progress -->
         <div>
-          <h1 class="text-5xl font-display font-bold">Bounty Assistant</h1>
+          <h1 class="text-5xl font-bold">Bounty Assistant</h1>
           <p class="mt-2 text-lg text-muted-foreground">
             Get a recommended bounty for an issue on GitHub.
           </p>
@@ -104,14 +103,14 @@ defmodule AlgoraWeb.HomeLive do
                     name="issue_url"
                     value={@issue_url}
                     placeholder="https://github.com/acme/webapp/issues/137"
-                    class="py-4 sm:text-xl"
+                    class="px-4 py-4 sm:text-xl"
                   />
                 </div>
                 <.button
                   type="submit"
                   size="lg"
-                  disabled={@status != nil}
-                  class="text-xl font-display font-semibold py-6"
+                  disabled={@status != nil and @status != "complete"}
+                  class="text-xl font-semibold py-6"
                 >
                   <.icon name="tabler-sparkles" class="-ml-1 mr-2 h-8 w-8" /> Recommend bounty
                 </.button>
@@ -120,7 +119,7 @@ defmodule AlgoraWeb.HomeLive do
           </form>
 
           <%= if @error do %>
-            <div class="mt-4 p-4 rounded-md bg-destructive/10 text-destructive text-sm">
+            <div class="mt-4 font-medium text-destructive text-base">
               <%= @error %>
             </div>
           <% end %>
@@ -181,13 +180,13 @@ defmodule AlgoraWeb.HomeLive do
         <%= if @status || @recommendation do %>
           <div class="space-y-8">
             <div class="rounded-lg border bg-card p-6">
-              <h2 class="text-lg font-display font-semibold mb-2">Recommended Bounty</h2>
+              <h2 class="text-lg font-semibold mb-2">Recommended Bounty</h2>
               <%= if @recommendation do %>
-                <p class="text-3xl font-display font-bold text-success">
+                <p class="text-3xl font-bold text-success">
                   <%= Money.format!(@recommendation, "USD") %>
                 </p>
               <% else %>
-                <p class={"text-3xl font-display font-bold text-muted-foreground #{if @status, do: "animate-pulse"}"}>
+                <p class={"text-3xl font-bold text-muted-foreground #{if @status, do: "animate-pulse"}"}>
                   $$$
                 </p>
               <% end %>
@@ -195,8 +194,15 @@ defmodule AlgoraWeb.HomeLive do
 
             <%= if @similar_issues do %>
               <div class="space-y-4">
-                <h2 class="text-lg font-display font-semibold">Similar Issues</h2>
-                <div class="space-y-2 max-h-[600px] overflow-y-auto scrollbar-thin">
+                <%= if @current_issue do %>
+                  <h2 class="text-lg opacity-100">
+                    <span class="font-medium text-muted-foreground">Issues similar to</span>
+                    <span class="font-semibold text-foreground">"<%= @current_issue.title %>"</span>
+                  </h2>
+                <% else %>
+                  <h2 class="text-lg font-semibold opacity-0">Similar Issues</h2>
+                <% end %>
+                <div class="space-y-2">
                   <%= for issue <- @similar_issues do %>
                     <div class="rounded-lg border bg-card p-4">
                       <div class="flex justify-between items-start">
@@ -204,7 +210,7 @@ defmodule AlgoraWeb.HomeLive do
                           <p class="text-sm font-medium"><%= issue.title %></p>
                           <p class="text-xs text-muted-foreground"><%= issue.path %></p>
                         </div>
-                        <span class="inline-flex items-center rounded-md bg-success/10 px-2 py-1 text-sm font-semibold font-display text-success ring-1 ring-inset ring-success/20">
+                        <span class="inline-flex items-center rounded-md bg-success/10 px-2 py-1 text-sm font-semibold text-success ring-1 ring-inset ring-success/20">
                           <%= Money.format!(issue.bounty, "USD") %>
                         </span>
                       </div>
