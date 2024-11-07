@@ -125,4 +125,89 @@ defmodule Algora.AI do
       _ -> {:error, :invalid_recommendation}
     end
   end
+
+  @doc """
+  Run a backtest of the bounty recommendation system on random issues.
+
+  ## Examples:
+
+      Algora.AI.backtest_recommendations()
+      Algora.AI.backtest_recommendations(seed: 42)
+  """
+  def backtest_recommendations(opts \\ []) do
+    Repo.transaction(fn ->
+      if seed = opts[:seed] do
+        :rand.seed(:exsplus, {seed, seed, seed})
+        seed = :rand.uniform()
+        Repo.query!("SELECT setseed($1)", [seed])
+      end
+
+      {:ok, %{rows: issues}} =
+        Repo.query(
+          """
+          SELECT path, title, body, bounty
+          FROM issues
+          WHERE bounty IS NOT NULL
+          ORDER BY RANDOM()
+          LIMIT 2
+          """,
+          []
+        )
+
+      results =
+        issues
+        |> Enum.map(fn [path, title, body, actual_bounty] ->
+          issue = %{
+            path: path,
+            title: title,
+            body: body,
+            bounty: actual_bounty
+          }
+
+          similar_issues =
+            Workspace.search_issues("##{issue.title}\n\n#{issue.body}")
+            |> Enum.reject(&(&1.path == issue.path))
+
+          result =
+            case get_bounty_recommendation(issue, similar_issues) do
+              {:ok, recommended_bounty} ->
+                %{
+                  path: path,
+                  actual: Decimal.new(actual_bounty),
+                  recommended: recommended_bounty,
+                  error_pct:
+                    Decimal.div(
+                      Decimal.sub(recommended_bounty, Decimal.new(actual_bounty)),
+                      Decimal.new(actual_bounty)
+                    )
+                    |> Decimal.mult(Decimal.new(100))
+                }
+
+              _ ->
+                nil
+            end
+
+          # Print result immediately if valid
+          if result do
+            IO.puts("\n#{result.path}")
+            IO.puts("  Actual: $#{result.actual}")
+            IO.puts("  Recommended: $#{result.recommended}")
+            IO.puts("  Error: #{result.error_pct}%")
+          end
+
+          result
+        end)
+        |> Enum.reject(&is_nil/1)
+
+      # Print summary stats
+      avg_error =
+        results
+        |> Enum.map(& &1.error_pct)
+        |> Enum.reduce(Decimal.new(0), &Decimal.add/2)
+        |> Decimal.div(Decimal.new(length(results)))
+
+      IO.puts("\nSummary:")
+      IO.puts("  Average Error: #{avg_error}%")
+    end)
+  end
 end
