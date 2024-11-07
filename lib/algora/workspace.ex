@@ -22,30 +22,27 @@ defmodule Algora.Workspace do
 
   def search_issues_like(issue, opts \\ []) do
     limit = opts[:limit] || 10
-
-    query =
-      "##{issue.title}\n\n#{issue.body}\n\nComments: #{Jason.encode!(issue.comments)}"
+    query = "##{issue.title}\n\n#{issue.body}\n\nComments: #{Jason.encode!(issue.comments)}"
 
     Repo.all(
       from(i in Issue,
-        where:
-          fragment(
+        join:
+          s in fragment(
             """
-              id IN (
-                SELECT i.id
-                FROM vectorize.search(
-                  job_name => ?,
-                  query => ?,
-                  return_columns => ARRAY['id'],
-                  num_results => ?
-                ) s
-                JOIN issues i ON i.id = (s.search_results->>'id')
-              )
+            SELECT (search_results->>'id') as issue_id, row_number() OVER () as rank
+            FROM vectorize.search(
+              job_name => ?,
+              query => ?,
+              return_columns => ARRAY['id'],
+              num_results => ?
+            )
             """,
             ^issue_search_job_name(),
             ^query,
             ^limit
-          )
+          ),
+        on: i.id == fragment("issue_id"),
+        order_by: [asc: s.rank]
       )
     )
   end
