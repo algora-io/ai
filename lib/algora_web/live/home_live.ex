@@ -86,10 +86,12 @@ defmodule AlgoraWeb.HomeLive do
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Left Column: Input and Progress -->
         <div>
-          <h1 class="text-5xl font-bold">Bounty Assistant</h1>
-          <p class="mt-2 text-lg text-muted-foreground">
-            Get a recommended bounty for an issue on GitHub.
-          </p>
+          <div class="text-center sm:text-left">
+            <h1 class="text-4xl sm:text-5xl font-bold">Bounty Assistant</h1>
+            <p class="mt-2 text-base sm:text-lg text-muted-foreground text-balance">
+              Get a recommended bounty for any issue on GitHub.
+            </p>
+          </div>
 
           <form phx-submit="submit" class="mt-8 space-y-4 rounded-lg">
             <div class="space-y-2">
@@ -213,9 +215,9 @@ defmodule AlgoraWeb.HomeLive do
                       rel="noopener"
                       class="block rounded-lg border bg-card p-4 hover:bg-muted/20 transition-colors"
                     >
-                      <div class="flex justify-between items-start">
+                      <div class="flex justify-between items-start gap-4">
                         <div class="space-y-1">
-                          <p class="text-sm font-medium"><%= issue.title %></p>
+                          <p class="text-sm font-medium break-all"><%= issue.title %></p>
                           <p class="text-xs text-muted-foreground"><%= issue.path %></p>
                         </div>
                         <span class="inline-flex items-center rounded-md bg-success/10 px-2 py-1 text-sm font-semibold text-success ring-1 ring-inset ring-success/20">
