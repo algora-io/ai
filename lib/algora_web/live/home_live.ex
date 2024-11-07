@@ -1,6 +1,8 @@
 defmodule AlgoraWeb.HomeLive do
   use AlgoraWeb, :live_view
 
+  alias Algora.Money
+
   def mount(_params, _session, socket) do
     {:ok,
      assign(socket,
@@ -148,7 +150,7 @@ defmodule AlgoraWeb.HomeLive do
               <h2 class="text-lg font-display font-semibold mb-2">Recommended Bounty</h2>
               <%= if @recommendation do %>
                 <p class="text-3xl font-display font-bold text-success">
-                  $<%= @recommendation %>
+                  <%= Money.format!(@recommendation, "USD") %>
                 </p>
               <% else %>
                 <p class={"text-3xl font-display font-bold text-muted-foreground #{if @status, do: "animate-pulse"}"}>
@@ -169,7 +171,7 @@ defmodule AlgoraWeb.HomeLive do
                           <p class="text-xs text-muted-foreground"><%= issue.path %></p>
                         </div>
                         <span class="inline-flex items-center rounded-md bg-success/10 px-2 py-1 text-sm font-semibold font-display text-success ring-1 ring-inset ring-success/20">
-                          $<%= issue.bounty %>
+                          <%= Money.format!(issue.bounty, "USD") %>
                         </span>
                       </div>
                     </div>
