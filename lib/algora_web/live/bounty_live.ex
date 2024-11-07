@@ -67,44 +67,42 @@ defmodule AlgoraWeb.BountyLive do
 
   def render(assigns) do
     ~H"""
-    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <h1 class="text-2xl font-display font-bold mb-8">Bounty Recommender</h1>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-[1400px] mx-auto">
+    <div class="py-8 px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Left Column: Input and Progress -->
-        <div class="space-y-8">
-          <form phx-submit="submit" class="space-y-4 bg-card p-4 rounded-lg">
+        <div>
+          <h1 class="text-2xl font-display font-bold mb-4">Bounty Recommender</h1>
+
+          <form phx-submit="submit" class="mt-4 space-y-4 rounded-lg">
             <div class="space-y-2">
               <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Issue URL
               </label>
-              <div class="flex space-x-2">
-                <input
-                  type="text"
-                  name="issue_url"
-                  value={@issue_url}
-                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="https://github.com/owner/repo/issues/123"
-                />
-                <button
-                  type="submit"
-                  disabled={@status != nil}
-                  class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                >
-                  <.icon name="tabler-search" class="mr-2 h-4 w-4" /> Search
-                </button>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <div class="flex-1">
+                  <.input
+                    type="text"
+                    name="issue_url"
+                    value={@issue_url}
+                    placeholder="https://github.com/owner/repo/issues/123"
+                    class="h-9"
+                  />
+                </div>
+                <.button type="submit" disabled={@status != nil} class="w-full sm:w-auto">
+                  <.icon name="tabler-search" class="-ml-1 mr-2 h-4 w-4" /> Search
+                </.button>
               </div>
             </div>
           </form>
 
           <%= if @error do %>
-            <div class="p-4 rounded-md bg-destructive/10 text-destructive text-sm">
+            <div class="mt-4 p-4 rounded-md bg-destructive/10 text-destructive text-sm">
               <%= @error %>
             </div>
           <% end %>
 
           <%= if @status do %>
-            <div class="space-y-4">
+            <div class="mt-4 space-y-4">
               <div class="steps space-y-2">
                 <div class="flex items-center space-x-2">
                   <%= if !@current_issue do %>
@@ -170,7 +168,7 @@ defmodule AlgoraWeb.BountyLive do
                           <p class="text-sm font-medium"><%= issue.title %></p>
                           <p class="text-xs text-muted-foreground"><%= issue.path %></p>
                         </div>
-                        <span class="inline-flex items-center rounded-md bg-success/10 px-2 py-1 text-xs font-medium font-display text-success ring-1 ring-inset ring-success/20">
+                        <span class="inline-flex items-center rounded-md bg-success/10 px-2 py-1 text-sm font-semibold font-display text-success ring-1 ring-inset ring-success/20">
                           $<%= issue.bounty %>
                         </span>
                       </div>
