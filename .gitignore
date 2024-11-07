@@ -49,3 +49,4 @@ npm-debug.log
 *.patch
 /.fly
 /xref*
+/lib/admin.ex
