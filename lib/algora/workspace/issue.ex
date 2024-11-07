@@ -14,8 +14,6 @@ defmodule Algora.Workspace.Issue do
   end
 
   def changeset(issue, attrs) do
-    dbg(attrs)
-
     issue
     |> cast(attrs, [:path, :title, :body, :bounty])
     |> cast_embed(:comments, with: &comment_changeset/2)

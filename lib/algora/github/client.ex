@@ -7,9 +7,9 @@ defmodule Algora.Github.Client do
 
     request = Finch.build(:get, url, @headers)
 
-    with {:ok, response} <- request |> Finch.request(Algora.Finch),
-         {:ok, data} <- Jason.decode(response.body) do
-      {:ok, data}
+    case Finch.request(request, Algora.Finch) do
+      {:ok, response} -> Jason.decode(response.body)
+      error -> error
     end
   end
 

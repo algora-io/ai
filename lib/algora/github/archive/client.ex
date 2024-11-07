@@ -7,9 +7,8 @@ defmodule Algora.Github.Archive.Client do
     request = Finch.build(:post, @gh_api_url, @headers, query)
 
     with {:ok, response} <- Finch.request(request, Algora.Finch),
-         {:ok, body} <- Jason.decode(response.body),
-         {:ok, data} <- parse_response(body) do
-      {:ok, data}
+         {:ok, body} <- Jason.decode(response.body) do
+      parse_response(body)
     end
   end
 

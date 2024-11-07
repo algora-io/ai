@@ -12,17 +12,14 @@ defmodule Algora.Backtest do
       Algora.Backtest.bounty_recommendations(limit: 10)
       Algora.Backtest.bounty_recommendations(seed: 42, limit: 5)
   """
-  def bounty_recommendations(_opts \\ []) do
-    {:ok, issues} = Workspace.get_training_sample()
+  def bounty_recommendations(opts \\ []) do
+    {:ok, issues} = Workspace.get_random_issues(opts)
 
     results =
       issues
       |> Enum.map(fn issue ->
         similar_issues =
-          Workspace.search_issues(
-            "##{issue.title}\n\n#{issue.body}\n\nComments: #{Jason.encode!(issue.comments)}",
-            limit: 10
-          )
+          Workspace.search_issues_like(issue, limit: 10)
           |> Enum.reject(&(&1.path == issue.path))
 
         result =

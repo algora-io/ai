@@ -20,8 +20,11 @@ defmodule Algora.Workspace do
 
   def get_issue_by_path(path), do: Repo.get_by(Issue, path: path)
 
-  def search_issues(query, opts \\ []) do
+  def search_issues_like(issue, opts \\ []) do
     limit = opts[:limit] || 10
+
+    query =
+      "##{issue.title}\n\n#{issue.body}\n\nComments: #{Jason.encode!(issue.comments)}"
 
     Repo.all(
       from(i in Issue,
@@ -45,23 +48,6 @@ defmodule Algora.Workspace do
           )
       )
     )
-  end
-
-  def get_training_sample() do
-    issue_paths = [
-      "zio/zio-schema#544",
-      "dittofeed/dittofeed#578",
-      "zio/zio-http#2908",
-      "udecode/plate#560",
-      "zio/zio-schema#547",
-      "udecode/plate#2420",
-      "zio/zio-schema#388",
-      "teamhanko/hanko#935",
-      "tailcallhq/tailcall#2343",
-      "zio/zio-schema#608"
-    ]
-
-    {:ok, Repo.all(from(i in Issue, where: i.path in ^issue_paths))}
   end
 
   def get_random_issues(opts \\ []) do

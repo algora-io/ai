@@ -69,7 +69,7 @@ defmodule Algora.Github.Archive do
 
   alias Algora.Github.Archive.Client
 
-  defp path_in(paths), do: "path IN (#{paths |> Enum.map(&"'#{&1}'") |> Enum.join(",")})"
+  defp path_in(paths), do: "path IN (#{Enum.map_join(paths, ",", &"'#{&1}'")})"
 
   def list_issues(paths) do
     Client.fetch("""

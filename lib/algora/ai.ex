@@ -89,7 +89,7 @@ defmodule Algora.AI do
   end
 
   def find_similar_issues(issue) do
-    similar_issues = Workspace.search_issues("##{issue.title}\n\n#{issue.body}", limit: 10)
+    similar_issues = Workspace.search_issues_like(issue, limit: 10)
 
     top_references =
       similar_issues
@@ -107,13 +107,12 @@ defmodule Algora.AI do
   def get_bounty_recommendation(issue, comments, similar_issues) do
     issues_text =
       similar_issues
-      |> Enum.map(fn similar_issue ->
+      |> Enum.map_join("\n", fn similar_issue ->
         """
         Title: #{similar_issue.title}
         Bounty: #{similar_issue.bounty}
         """
       end)
-      |> Enum.join("\n")
 
     prompt = """
     Based on the following issue and similar issues with their bounties, recommend an appropriate bounty amount.
