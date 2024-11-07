@@ -207,7 +207,12 @@ defmodule AlgoraWeb.HomeLive do
                 <% end %>
                 <div class="space-y-2">
                   <%= for issue <- @similar_issues do %>
-                    <div class="rounded-lg border bg-card p-4">
+                    <.link
+                      href={"https://github.com/#{String.replace(issue.path, "#", "/issues/")}"}
+                      target="_blank"
+                      rel="noopener"
+                      class="block rounded-lg border bg-card p-4 hover:bg-muted/20 transition-colors"
+                    >
                       <div class="flex justify-between items-start">
                         <div class="space-y-1">
                           <p class="text-sm font-medium"><%= issue.title %></p>
@@ -217,7 +222,7 @@ defmodule AlgoraWeb.HomeLive do
                           <%= Money.format!(issue.bounty, "USD") %>
                         </span>
                       </div>
-                    </div>
+                    </.link>
                   <% end %>
                 </div>
               </div>
