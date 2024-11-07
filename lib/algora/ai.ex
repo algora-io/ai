@@ -175,12 +175,13 @@ defmodule Algora.AI do
                   path: path,
                   actual: Decimal.new(actual_bounty),
                   recommended: recommended_bounty,
-                  error_pct:
-                    Decimal.div(
+                  squared_error:
+                    Decimal.mult(
                       Decimal.sub(recommended_bounty, Decimal.new(actual_bounty)),
-                      Decimal.new(actual_bounty)
-                    )
-                    |> Decimal.mult(Decimal.new(100))
+                      Decimal.sub(recommended_bounty, Decimal.new(actual_bounty))
+                    ),
+                  absolute_error:
+                    Decimal.abs(Decimal.sub(recommended_bounty, Decimal.new(actual_bounty)))
                 }
 
               _ ->
@@ -192,22 +193,47 @@ defmodule Algora.AI do
             IO.puts("\n#{result.path}")
             IO.puts("  Actual: $#{result.actual}")
             IO.puts("  Recommended: $#{result.recommended}")
-            IO.puts("  Error: #{result.error_pct}%")
+            IO.puts("  Absolute Error: $#{result.absolute_error}")
+            IO.puts("  Squared Error: #{result.squared_error}")
           end
 
           result
         end)
         |> Enum.reject(&is_nil/1)
 
-      # Print summary stats
-      avg_error =
+      # Calculate summary statistics
+      mse =
         results
-        |> Enum.map(& &1.error_pct)
+        |> Enum.map(& &1.squared_error)
         |> Enum.reduce(Decimal.new(0), &Decimal.add/2)
         |> Decimal.div(Decimal.new(length(results)))
 
+      rmse = Decimal.sqrt(mse)
+
+      # Calculate median absolute error
+      median_error =
+        results
+        |> Enum.map(& &1.absolute_error)
+        |> Enum.sort_by(&Decimal.to_float/1)
+        |> then(fn sorted ->
+          mid = div(length(sorted), 2)
+
+          if rem(length(sorted), 2) == 0 do
+            sorted
+            |> Enum.slice(mid - 1, 2)
+            |> Enum.map(&Decimal.to_float/1)
+            |> Enum.sum()
+            |> Kernel./(2)
+            |> Decimal.from_float()
+          else
+            Enum.at(sorted, mid)
+          end
+        end)
+
       IO.puts("\nSummary:")
-      IO.puts("  Average Error: #{avg_error}%")
+      IO.puts("  Mean Squared Error: #{mse}")
+      IO.puts("  Root Mean Squared Error: $#{rmse}")
+      IO.puts("  Median Absolute Error: $#{median_error}")
     end)
   end
 end
