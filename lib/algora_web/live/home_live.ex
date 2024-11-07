@@ -103,7 +103,8 @@ defmodule AlgoraWeb.HomeLive do
                     name="issue_url"
                     value={@issue_url}
                     placeholder="https://github.com/acme/webapp/issues/137"
-                    class="px-4 py-4 sm:text-xl"
+                    autocomplete="off"
+                    class="px-4 py-4 sm:text-xl border-muted-foreground"
                   />
                 </div>
                 <.button
@@ -129,10 +130,10 @@ defmodule AlgoraWeb.HomeLive do
               <div class="steps space-y-2">
                 <div class="flex items-center space-x-2">
                   <%= if !@current_issue do %>
-                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
                     <p class="text-sm text-muted-foreground">Fetching issue details...</p>
                   <% else %>
-                    <.icon name="tabler-check" class="text-success" />
+                    <.icon name="tabler-check" class="text-success h-4 w-4" />
                     <p class="text-sm text-success">Fetching issue details...</p>
                   <% end %>
                 </div>
@@ -140,10 +141,10 @@ defmodule AlgoraWeb.HomeLive do
                 <%= if @current_issue do %>
                   <div class="flex items-center space-x-2">
                     <%= if !@comments do %>
-                      <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      <div class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
                       <p class="text-sm text-muted-foreground">Fetching comments...</p>
                     <% else %>
-                      <.icon name="tabler-check" class="text-success" />
+                      <.icon name="tabler-check" class="text-success h-4 w-4" />
                       <p class="text-sm text-success">Fetching comments...</p>
                     <% end %>
                   </div>
@@ -152,10 +153,10 @@ defmodule AlgoraWeb.HomeLive do
                 <%= if @comments do %>
                   <div class="flex items-center space-x-2">
                     <%= if !@similar_issues do %>
-                      <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      <div class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
                       <p class="text-sm text-muted-foreground">Searching similar issues...</p>
                     <% else %>
-                      <.icon name="tabler-check" class="text-success" />
+                      <.icon name="tabler-check" class="text-success h-4 w-4" />
                       <p class="text-sm text-success">Searching similar issues...</p>
                     <% end %>
                   </div>
@@ -164,10 +165,10 @@ defmodule AlgoraWeb.HomeLive do
                 <%= if @similar_issues do %>
                   <div class="flex items-center space-x-2">
                     <%= if !@recommendation do %>
-                      <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      <div class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
                       <p class="text-sm text-muted-foreground">Calculating recommendation...</p>
                     <% else %>
-                      <.icon name="tabler-check" class="text-success" />
+                      <.icon name="tabler-check" class="text-success h-4 w-4" />
                       <p class="text-sm text-success">Calculating recommendation...</p>
                     <% end %>
                   </div>
@@ -195,9 +196,11 @@ defmodule AlgoraWeb.HomeLive do
             <%= if @similar_issues do %>
               <div class="space-y-4">
                 <%= if @current_issue do %>
-                  <h2 class="text-lg opacity-100">
+                  <h2 class="text-lg opacity-100 truncate whitespace-nowrap">
                     <span class="font-medium text-muted-foreground">Issues similar to</span>
-                    <span class="font-semibold text-foreground">"<%= @current_issue.title %>"</span>
+                    <span class="font-semibold text-foreground truncate">
+                      <%= @current_issue.title %>
+                    </span>
                   </h2>
                 <% else %>
                   <h2 class="text-lg font-semibold opacity-0">Similar Issues</h2>
