@@ -13,9 +13,10 @@ defmodule Algora.AI do
       Algora.AI.recommend_bounty("https://github.com/calcom/cal.com/issues/6315")
   """
   def recommend_bounty(url) do
-    with {:ok, issue} <- fetch_issue(url),
+    with {:ok, issue} <- get_issue(url),
          {:ok, top_references, similar_issues} <- find_similar_issues(issue),
-         {:ok, amount} <- get_bounty_recommendation(issue, similar_issues) do
+         {:ok, comments} <- list_comments(url),
+         {:ok, amount} <- get_bounty_recommendation(issue, comments, similar_issues) do
       {:ok, amount, top_references}
     end
   end
@@ -63,11 +64,28 @@ defmodule Algora.AI do
     )
   end
 
-  def fetch_issue(url) do
+  def get_issue(url) do
     case Github.Client.get_issue_from_url(url) do
-      {:ok, issue_data} -> {:ok, issue_data |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)}
+      {:ok, %{"title" => title, "body" => body}} -> {:ok, %{title: title, body: body}}
       error -> error
     end
+  end
+
+  def list_comments(url) do
+    try do
+      {:ok, list_comments!(url)}
+    rescue
+      _ -> {:error, :failed_to_fetch_comments}
+    end
+  end
+
+  defp list_comments!(url) do
+    {:ok, comments} = Github.Client.list_comments_from_url(url)
+
+    comments
+    |> Enum.map(fn %{"body" => body, "user" => %{"login" => login}} ->
+      %{body: body, user: %{login: login}}
+    end)
   end
 
   def find_similar_issues(issue) do
@@ -87,7 +105,7 @@ defmodule Algora.AI do
     {:ok, top_references, similar_issues}
   end
 
-  def get_bounty_recommendation(issue, similar_issues) do
+  def get_bounty_recommendation(issue, comments, similar_issues) do
     issues_text =
       similar_issues
       |> Enum.take(100)
@@ -99,6 +117,20 @@ defmodule Algora.AI do
       end)
       |> Enum.join("\n")
 
+    prompt = """
+    Based on the following issue and similar issues with their bounties, recommend an appropriate bounty amount.
+    Consider the complexity implied by both the title and description, as well as patterns in existing bounties.
+    Provide only a numeric response in USD (no symbols or text).
+
+    Current Issue:
+    Title: #{issue.title}
+    Description: #{issue.body}
+    Comments: #{Jason.encode!(comments)}
+
+    Similar issues:
+    #{issues_text}
+    """
+
     {:ok, %{rows: [[recommendation]]}} =
       Repo.query(
         """
@@ -107,20 +139,7 @@ defmodule Algora.AI do
           model => 'openai/gpt-4'
         )
         """,
-        [
-          """
-          Based on the following issue and similar issues with their bounties, recommend an appropriate bounty amount.
-          Consider the complexity implied by both the title and description, as well as patterns in existing bounties.
-          Provide only a numeric response in USD (no symbols or text).
-
-          Current Issue:
-          Title: #{issue.title}
-          Description: #{issue.body}
-
-          Similar issues:
-          #{issues_text}
-          """
-        ]
+        [prompt]
       )
 
     case Decimal.parse(String.trim(recommendation)) do

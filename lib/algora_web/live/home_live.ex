@@ -11,7 +11,8 @@ defmodule AlgoraWeb.HomeLive do
        similar_issues: nil,
        recommendation: nil,
        status: nil,
-       error: nil
+       error: nil,
+       comments: nil
      )}
   end
 
@@ -31,33 +32,46 @@ defmodule AlgoraWeb.HomeLive do
 
   # Step 1: Fetch Issue
   def handle_info({:fetch_issue, url}, socket) do
-    case Algora.AI.fetch_issue(url) do
+    case Algora.AI.get_issue(url) do
       {:ok, issue} ->
-        send(self(), {:find_similar_issues, issue})
-        {:noreply, assign(socket, current_issue: issue, status: "finding_similar")}
+        send(self(), {:fetch_comments, url, issue})
+        {:noreply, assign(socket, current_issue: issue, status: "fetching_comments")}
 
       {:error, reason} ->
         {:noreply, assign(socket, error: "Failed to fetch issue: #{reason}", status: nil)}
     end
   end
 
-  # Step 2: Find Similar Issues
-  def handle_info({:find_similar_issues, issue}, socket) do
-    case Algora.AI.find_similar_issues(issue) do
-      {:ok, top_references, all_similar} ->
-        send(self(), {:get_recommendation, issue, all_similar})
+  # Step 2: Fetch Comments
+  def handle_info({:fetch_comments, url, issue}, socket) do
+    case Algora.AI.list_comments(url) do
+      {:ok, comments} ->
+        send(self(), {:search_similar_issues, issue, comments})
 
         {:noreply,
-         assign(socket, similar_issues: top_references, status: "calculating_recommendation")}
+         assign(socket,
+           comments: comments,
+           status: "searching_similar_issues"
+         )}
 
       {:error, reason} ->
-        {:noreply, assign(socket, error: "Failed to find similar issues: #{reason}", status: nil)}
+        {:noreply, assign(socket, error: "Failed to fetch comments: #{reason}", status: nil)}
     end
   end
 
-  # Step 3: Get Recommendation
-  def handle_info({:get_recommendation, issue, similar_issues}, socket) do
-    case Algora.AI.get_bounty_recommendation(issue, similar_issues) do
+  # Step 3: Search Similar Issues
+  def handle_info({:search_similar_issues, issue, comments}, socket) do
+    # TODO: search by title, body, and comments
+    similar_issues = Algora.Workspace.search_issues(issue.title)
+    send(self(), {:get_recommendation, issue, comments, similar_issues})
+
+    {:noreply,
+     assign(socket, similar_issues: similar_issues, status: "calculating_recommendation")}
+  end
+
+  # Step 4: Get Recommendation
+  def handle_info({:get_recommendation, issue, comments, similar_issues}, socket) do
+    case Algora.AI.get_bounty_recommendation(issue, comments, similar_issues) do
       {:ok, amount} ->
         {:noreply, assign(socket, recommendation: amount, status: "complete")}
 
@@ -126,12 +140,24 @@ defmodule AlgoraWeb.HomeLive do
 
                 <%= if @current_issue do %>
                   <div class="flex items-center space-x-2">
-                    <%= if !@similar_issues do %>
+                    <%= if !@comments do %>
                       <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                      <p class="text-sm text-muted-foreground">Finding similar issues...</p>
+                      <p class="text-sm text-muted-foreground">Fetching comments...</p>
                     <% else %>
                       <.icon name="tabler-check" class="text-success" />
-                      <p class="text-sm text-success">Finding similar issues...</p>
+                      <p class="text-sm text-success">Fetching comments...</p>
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <%= if @comments do %>
+                  <div class="flex items-center space-x-2">
+                    <%= if !@similar_issues do %>
+                      <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      <p class="text-sm text-muted-foreground">Searching similar issues...</p>
+                    <% else %>
+                      <.icon name="tabler-check" class="text-success" />
+                      <p class="text-sm text-success">Searching similar issues...</p>
                     <% end %>
                   </div>
                 <% end %>

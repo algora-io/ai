@@ -21,4 +21,13 @@ defmodule Algora.Github.Client do
     [owner, repo, _, number] = String.split(path, "/", trim: true)
     get_issue(owner, repo, number)
   end
+
+  def list_comments(owner, repo, number),
+    do: fetch("repos/#{owner}/#{repo}/issues/#{number}/comments")
+
+  def list_comments_from_url(url) do
+    %{path: path} = URI.parse(url)
+    [owner, repo, _, number] = String.split(path, "/", trim: true)
+    list_comments(owner, repo, number)
+  end
 end
