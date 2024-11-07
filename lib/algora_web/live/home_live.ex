@@ -82,7 +82,7 @@ defmodule AlgoraWeb.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <div class="py-8 px-4 sm:px-6 lg:px-8 font-display">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-display">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Left Column: Input and Progress -->
         <div>
