@@ -52,32 +52,24 @@ To get a local copy up and running, follow these steps.
    git clone https://github.com/algora-io/ai.git; cd ai
    ```
 
-2. Fetch dependencies
-
-   ```sh
-   mix deps.get
-   ```
-
-   **Note:** If you're using an Apple machine with an ARM-based chip, you _might_ need to install the Rust compiler and run `mix compile.rambo`
-
-3. Initialize your `.env` file
+2. Initialize your `.env` file
 
    ```sh
    cp .env.example .env
    ```
 
-4. Create a Postgres database with `pg_vectorize` extension installed
+3. Create a Postgres database with `pg_vectorize` extension installed
 
    - **Option 1:** Use [VectorDB Stack](https://tembo.io/docs/product/stacks/ai/vectordb) on [Tembo Cloud](https://cloud.tembo.io)
    - **Option 2:** Install [pg_vectorize](https://github.com/tembo-io/pg_vectorize) on your own Postgres server
 
-5. Paste your connection string into your `.env` file
+4. Paste your connection string into your `.env` file
 
    ```env
    DATABASE_URL="postgresql://user:pass@localhost:5432/db"
    ```
 
-6. Open a psql shell and set the OpenAI API key
+5. Open a psql shell and set the OpenAI API key
 
    ```sh
    psql <DATABASE_URL>
@@ -88,13 +80,15 @@ To get a local copy up and running, follow these steps.
    SELECT pg_reload_conf();
    ```
 
-7. Run migrations and seed your database
+6. Fetch dependencies, run migrations and build assets
 
    ```sh
-   env $(cat .env | xargs -L 1) mix ecto.setup
+   env $(cat .env | xargs -L 1) mix setup
    ```
 
-8. Start your development server
+   **Note:** If you're using an Apple machine with an ARM-based chip, you _might_ additionally need to install the Rust compiler and run `mix compile.rambo`
+
+7. Start your development server
 
    ```sh
    env $(cat .env | xargs -L 1) iex -S mix phx.server
