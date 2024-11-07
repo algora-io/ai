@@ -89,11 +89,10 @@ defmodule Algora.AI do
   end
 
   def find_similar_issues(issue) do
-    similar_issues = Workspace.search_issues("##{issue.title}\n\n#{issue.body}")
+    similar_issues = Workspace.search_issues("##{issue.title}\n\n#{issue.body}", limit: 10)
 
     top_references =
       similar_issues
-      |> Enum.take(5)
       |> Enum.map(fn issue ->
         %{
           path: issue.path,
@@ -108,7 +107,6 @@ defmodule Algora.AI do
   def get_bounty_recommendation(issue, comments, similar_issues) do
     issues_text =
       similar_issues
-      |> Enum.take(100)
       |> Enum.map(fn similar_issue ->
         """
         Title: #{similar_issue.title}

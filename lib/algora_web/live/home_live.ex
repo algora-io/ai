@@ -62,7 +62,7 @@ defmodule AlgoraWeb.HomeLive do
   # Step 3: Search Similar Issues
   def handle_info({:search_similar_issues, issue, comments}, socket) do
     # TODO: search by title, body, and comments
-    similar_issues = Algora.Workspace.search_issues(issue.title)
+    similar_issues = Algora.Workspace.search_issues(issue.title, limit: 10)
     send(self(), {:get_recommendation, issue, comments, similar_issues})
 
     {:noreply,

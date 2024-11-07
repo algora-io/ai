@@ -20,7 +20,9 @@ defmodule Algora.Workspace do
 
   def get_issue_by_path(path), do: Repo.get_by(Issue, path: path)
 
-  def search_issues(query) do
+  def search_issues(query, opts \\ []) do
+    limit = opts[:limit] || 10
+
     Repo.all(
       from(i in Issue,
         where:
@@ -32,13 +34,14 @@ defmodule Algora.Workspace do
                   job_name => ?,
                   query => ?,
                   return_columns => ARRAY['id'],
-                  num_results => 10
+                  num_results => ?
                 ) s
                 JOIN issues i ON i.id = (s.search_results->>'id')
               )
             """,
             ^issue_search_job_name(),
-            ^query
+            ^query,
+            ^limit
           )
       )
     )

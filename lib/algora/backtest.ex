@@ -20,7 +20,8 @@ defmodule Algora.Backtest do
       |> Enum.map(fn issue ->
         similar_issues =
           Workspace.search_issues(
-            "##{issue.title}\n\n#{issue.body}\n\nComments: #{Jason.encode!(issue.comments)}"
+            "##{issue.title}\n\n#{issue.body}\n\nComments: #{Jason.encode!(issue.comments)}",
+            limit: 10
           )
           |> Enum.reject(&(&1.path == issue.path))
 
