@@ -136,7 +136,7 @@ defmodule Algora.AI do
         """
         SELECT vectorize.generate(
           input => $1,
-          model => 'openai/gpt-4'
+          model => 'openai/gpt-4o'
         )
         """,
         [prompt]
