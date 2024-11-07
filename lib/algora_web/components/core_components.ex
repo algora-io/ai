@@ -777,15 +777,17 @@ defmodule AlgoraWeb.CoreComponents do
         name={@name}
         id={@id || @name}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
-        class={[
-          "bg-background block w-full rounded-lg border-input py-[7px] px-[11px]",
-          "text-foreground focus:outline-none focus:ring-4 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-input phx-no-feedback:focus:border-ring phx-no-feedback:focus:ring-ring/5",
-          "border-input focus:border-ring focus:ring-ring/5",
-          @errors != [] &&
-            "border-destructive focus:border-destructive focus:ring-destructive/10 placeholder-destructive-foreground/50",
-          @class
-        ]}
+        class={
+          classes([
+            "bg-background block w-full rounded-lg border-input py-[7px] px-[11px]",
+            "text-foreground focus:outline-none focus:ring-4 sm:text-sm sm:leading-6",
+            "phx-no-feedback:border-input phx-no-feedback:focus:border-ring phx-no-feedback:focus:ring-ring/5",
+            "border-input focus:border-ring focus:ring-ring/5",
+            @errors != [] &&
+              "border-destructive focus:border-destructive focus:ring-destructive/10 placeholder-destructive-foreground/50",
+            @class
+          ])
+        }
         {@rest}
       />
       <.error :for={msg <- @errors}><%= msg %></.error>

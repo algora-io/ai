@@ -69,29 +69,37 @@ defmodule AlgoraWeb.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <div class="py-8 px-4 sm:px-6 lg:px-8">
+    <div class="py-8 px-4 sm:px-6 lg:px-8 font-display">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Left Column: Input and Progress -->
         <div>
-          <h1 class="text-2xl font-display font-bold mb-4">Bounty Recommender</h1>
+          <h1 class="text-5xl font-display font-bold">Bounty Assistant</h1>
+          <p class="mt-2 text-lg text-muted-foreground">
+            Get a recommended bounty for an issue on GitHub.
+          </p>
 
-          <form phx-submit="submit" class="mt-4 space-y-4 rounded-lg">
+          <form phx-submit="submit" class="mt-8 space-y-4 rounded-lg">
             <div class="space-y-2">
-              <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <label class="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Issue URL
               </label>
-              <div class="flex flex-col sm:flex-row gap-2">
+              <div class="flex flex-col gap-4">
                 <div class="flex-1">
                   <.input
                     type="text"
                     name="issue_url"
                     value={@issue_url}
-                    placeholder="https://github.com/owner/repo/issues/123"
-                    class="h-9"
+                    placeholder="https://github.com/acme/webapp/issues/137"
+                    class="py-4 sm:text-xl"
                   />
                 </div>
-                <.button type="submit" disabled={@status != nil} class="w-full sm:w-auto">
-                  <.icon name="tabler-search" class="-ml-1 mr-2 h-4 w-4" /> Search
+                <.button
+                  type="submit"
+                  size="lg"
+                  disabled={@status != nil}
+                  class="text-xl font-display font-semibold py-6"
+                >
+                  <.icon name="tabler-sparkles" class="-ml-1 mr-2 h-8 w-8" /> Recommend bounty
                 </.button>
               </div>
             </div>
