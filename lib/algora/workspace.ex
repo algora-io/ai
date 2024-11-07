@@ -3,21 +3,17 @@ defmodule Algora.Workspace do
   alias Algora.Repo
   alias Algora.Workspace.Issue
 
-  def issue_search_job_name, do: "issue_search_hf"
+  def issue_search_job_name, do: "issue_search"
+
+  def create_issue!(attrs \\ %{}) do
+    {:ok, issue} = create_issue(attrs)
+    issue
+  end
 
   def create_issue(attrs \\ %{}) do
     %Issue{}
     |> Issue.changeset(attrs)
-    |> Repo.insert(
-      on_conflict: [
-        set: [
-          title: attrs.title,
-          body: attrs.body,
-          updated_at: DateTime.utc_now()
-        ]
-      ],
-      conflict_target: :path
-    )
+    |> Repo.insert(on_conflict: :nothing, conflict_target: :path)
   end
 
   def get_issue(id), do: Repo.get(Issue, id)

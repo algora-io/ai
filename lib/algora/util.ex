@@ -12,7 +12,7 @@ defmodule Algora.Util do
     else
       items_to_fetch
       |> Enum.chunk_every(batch_size)
-      |> Task.async_stream(operation, max_concurrency: max_concurrency)
+      |> Task.async_stream(operation, max_concurrency: max_concurrency, timeout: :infinity)
       |> Enum.reduce({:ok, []}, fn
         {:ok, {:ok, batch_data}}, {:ok, acc} ->
           Logger.info("Successfully processed batch with #{length(batch_data)} results")

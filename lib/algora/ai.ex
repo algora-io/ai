@@ -13,21 +13,10 @@ defmodule Algora.AI do
       Algora.AI.recommend_bounty("https://github.com/calcom/cal.com/issues/6315")
   """
   def recommend_bounty(url) do
-    case fetch_issue(url) do
-      {:ok, issue} ->
-        case find_similar_issues(issue) do
-          {:ok, top_references, similar_issues} ->
-            case get_bounty_recommendation(issue, similar_issues) do
-              {:ok, amount} -> {:ok, amount, top_references}
-              error -> error
-            end
-
-          error ->
-            error
-        end
-
-      error ->
-        error
+    with {:ok, issue} <- fetch_issue(url),
+         {:ok, top_references, similar_issues} <- find_similar_issues(issue),
+         {:ok, amount} <- get_bounty_recommendation(issue, similar_issues) do
+      {:ok, amount, top_references}
     end
   end
 
@@ -39,9 +28,13 @@ defmodule Algora.AI do
       Algora.AI.add_training_data(["calcom/cal.com#6315", "remotion-dev/remotion#1525"])
   """
   def add_training_data(paths) do
-    with {:ok, issues} <- fetch_issues(paths) do
+    with {:ok, issues} <- fetch_issues(paths),
+         {:ok, comments} <- fetch_comments(paths) do
       for issue <- issues do
-        Workspace.create_issue(%{issue | body: maybe_to_na(issue.body)})
+        issue
+        |> Map.put(:body, maybe_to_na(issue.body))
+        |> Map.put(:comments, comments |> Enum.filter(fn c -> c.path == issue.path end))
+        |> Workspace.create_issue!()
       end
     end
   end
@@ -49,6 +42,16 @@ defmodule Algora.AI do
   defp maybe_to_na(nil), do: "N/A"
   defp maybe_to_na(""), do: "N/A"
   defp maybe_to_na(value), do: value
+
+  defp fetch_comments(paths) do
+    Util.with_cache(
+      &Github.Archive.list_comments/1,
+      paths,
+      cache_dir: ".local/comments",
+      max_concurrency: @max_concurrency,
+      batch_size: @batch_size
+    )
+  end
 
   defp fetch_issues(paths) do
     Util.with_cache(
