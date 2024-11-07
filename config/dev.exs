@@ -6,6 +6,7 @@ config :algora, Algora.Repo,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10,
+  ssl: [verify: :verify_none],
   migration_primary_key: [type: :string]
 
 # For development, we disable any cache and enable

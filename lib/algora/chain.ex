@@ -1,11 +1,27 @@
 defmodule Algora.Chain do
   require Logger
-  alias Algora.Github
+  alias Algora.{Github, Workspace}
 
   @batch_size 20
   @max_concurrency 5
 
-  def fetch_issues(paths) do
+  def process_body(body) do
+    case body do
+      "" -> "N/A"
+      nil -> "N/A"
+      value -> value
+    end
+  end
+
+  def process_issues(paths) do
+    with {:ok, issues} <- fetch_issues(paths) do
+      for issue <- issues do
+        Workspace.create_issue(%{issue | body: process_body(issue.body)})
+      end
+    end
+  end
+
+  defp fetch_issues(paths) do
     paths_to_fetch = Enum.reject(paths, &cached?/1)
 
     if Enum.empty?(paths_to_fetch) do
