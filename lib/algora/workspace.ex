@@ -47,4 +47,76 @@ defmodule Algora.Workspace do
       )
     )
   end
+
+  def recommend_bounty(url) do
+    %{path: path} = URI.parse(url)
+    [owner, repo, _, issue_number] = String.split(path, "/", trim: true)
+
+    api_url = "https://api.github.com/repos/#{owner}/#{repo}/issues/#{issue_number}"
+
+    {:ok, response} =
+      Finch.build(:get, api_url, [
+        {"Accept", "application/vnd.github.v3+json"},
+        {"User-Agent", "Algora"}
+      ])
+      |> Finch.request(Algora.Finch)
+
+    issue =
+      case Jason.decode!(response.body) do
+        %{"title" => title, "body" => body} -> %{title: title, body: body}
+      end
+
+    similar_issues = search_issues("##{issue.title}\n\n#{issue.body}")
+
+    top_references =
+      similar_issues
+      |> Enum.take(5)
+      |> Enum.map(fn issue ->
+        %{
+          path: issue.path,
+          title: issue.title,
+          bounty: issue.bounty
+        }
+      end)
+
+    issues_text =
+      similar_issues
+      |> Enum.take(100)
+      |> Enum.map(fn similar_issue ->
+        """
+        Title: #{similar_issue.title}
+        Bounty: #{similar_issue.bounty}
+        """
+      end)
+      |> Enum.join("\n")
+
+    {:ok, %{rows: [[recommendation]]}} =
+      Repo.query(
+        """
+        SELECT vectorize.generate(
+          input => $1,
+          model => 'openai/gpt-4'
+        )
+        """,
+        [
+          """
+          Based on the following issue and similar issues with their bounties, recommend an appropriate bounty amount.
+          Consider the complexity implied by both the title and description, as well as patterns in existing bounties.
+          Provide only a numeric response in USD (no symbols or text).
+
+          Current Issue:
+          Title: #{issue.title}
+          Description: #{issue.body}
+
+          Similar issues:
+          #{issues_text}
+          """
+        ]
+      )
+
+    case Decimal.parse(String.trim(recommendation)) do
+      {amount, _} -> {:ok, amount, top_references}
+      _ -> {:error, :invalid_recommendation}
+    end
+  end
 end
