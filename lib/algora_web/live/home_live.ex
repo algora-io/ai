@@ -218,7 +218,7 @@ defmodule AlgoraWeb.HomeLive do
                       rel="noopener"
                       class="block rounded-lg border bg-card p-4 hover:bg-muted/20 transition-colors"
                     >
-                      <div class="flex justify-between items-start gap-4">
+                      <div class="flex justify-between items-start gap-4 sm:gap-2">
                         <div class="space-y-1">
                           <p class="text-sm font-medium break-all"><%= issue.title %></p>
                           <p class="text-xs text-muted-foreground"><%= issue.path %></p>

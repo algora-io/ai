@@ -1146,6 +1146,8 @@ defmodule AlgoraWeb.CoreComponents do
     """
   end
 
+  defdelegate github(assigns), to: AlgoraWeb.Components.Logos
+
   defdelegate accordion_item(assigns), to: AlgoraWeb.Components.UI.Accordion
   defdelegate accordion_trigger(assigns), to: AlgoraWeb.Components.UI.Accordion
   defdelegate accordion(assigns), to: AlgoraWeb.Components.UI.Accordion

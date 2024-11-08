@@ -1,9 +1,9 @@
 <header class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
   <div class="flex items-center justify-between border-b border-input py-3">
     <div class="flex">
-      <a href="/">
+      <.link href="https://algora.io">
         <.wordmark class="h-8 w-auto" />
-      </a>
+      </.link>
     </div>
     <div class="flex items-center gap-4 text-sm font-medium">
       <button
@@ -16,24 +16,28 @@
         <.icon name="tabler-sun" class="h-5 w-5 [.dark_&]:hidden" />
         <.icon name="tabler-moon" class="hidden h-5 w-5 [.dark_&]:block" />
       </button>
-      <a
+      <.link
         href="https://twitter.com/algoraio"
+        target="_blank"
+        rel="noopener"
         class="text-foreground/80 transition-colors hover:text-foreground"
       >
         <div class="flex items-center gap-2">
-          <.icon name="tabler-brand-twitter" class="h-4 w-4" />
+          <.icon name="tabler-brand-x" class="h-5 w-5" />
           <span>@algoraio</span>
         </div>
-      </a>
-      <a
+      </.link>
+      <.link
         href="https://github.com/algora-io"
+        target="_blank"
+        rel="noopener"
         class="text-foreground/80 transition-colors hover:text-foreground"
       >
         <div class="flex items-center gap-2">
-          <.icon name="tabler-brand-github" class="h-4 w-4" />
+          <.github class="h-5 w-5" />
           <span>GitHub</span>
         </div>
-      </a>
+      </.link>
     </div>
   </div>
 </header>
