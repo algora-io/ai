@@ -8,9 +8,8 @@
 import Config
 
 config :algora,
-  title: "Algora",
-  description:
-    "Algora is a developer tool & community simplifying bounties, hiring & open source sustainability.",
+  title: "Algora AI",
+  description: "✨ Bounty and developer recommendations",
   ecto_repos: [Algora.Repo],
   generators: [timestamp_type: :utc_datetime]
 

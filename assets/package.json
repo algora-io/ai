@@ -1,7 +1,7 @@
 {
   "name": "@algora/ai",
   "version": "0.0.1",
-  "description": "Algora is a developer tool & community simplifying bounties, hiring & open source sustainability.",
+  "description": "Algora AI ✨ Bounty and developer recommendations",
   "main": "app.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
